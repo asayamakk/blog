@@ -1,6 +1,7 @@
 ---
 title: A post with a cover image
 date: 2019-01-07
+path: test-post
 published: true
 tags: ['Markdown', 'Cover Image']
 series: false

@@ -5,19 +5,19 @@
         {{ $page.post.title }}
       </h1>
 
-      <PostMeta :post="$page.post" />
+      <PostMeta :post="$page.post"/>
 
     </div>
 
     <div class="post content-box">
       <div class="post__header">
-        <g-image alt="Cover image" v-if="$page.post.cover_image" :src="$page.post.cover_image" />
+        <g-image alt="Cover image" v-if="$page.post.cover_image" :src="$page.post.cover_image"/>
       </div>
 
-      <div class="post__content" v-html="$page.post.content" />
+      <div class="post__content" v-html="$page.post.content"/>
 
       <div class="post__footer">
-        <PostTags :post="$page.post" />
+        <PostTags :post="$page.post"/>
       </div>
     </div>
 
@@ -25,7 +25,7 @@
       <!-- Add comment widgets here -->
     </div>
 
-    <Author class="post-author" />
+    <Author class="post-author"/>
   </Layout>
 </template>
 
@@ -33,6 +33,7 @@
 import PostMeta from '~/components/PostMeta'
 import PostTags from '~/components/PostTags'
 import Author from '~/components/Author.vue'
+import config from "../../gridsome.config";
 
 export default {
   components: {
@@ -40,14 +41,18 @@ export default {
     PostMeta,
     PostTags
   },
-  metaInfo () {
+  metaInfo() {
     return {
       title: this.$page.post.title,
       meta: [
-        {
-          name: 'description',
-          content: this.$page.post.description
-        }
+        {name: 'description', content: this.$page.post.description},
+        {key: "og:title", property: "og:title", content: this.$page.post.title},
+        {key: "og:type", property: "og:type", content: 'article'},
+        {key: "og:description", property: "og:description", content: this.$page.post.description},
+        {key: "og:image", property: "og:image", content: this.$page.post.cover_image || config.siteCover},
+      ],
+      link: [
+        {rel: "canonical", href: this.$page.metadata.siteUrl + this.$page.post.path}
       ]
     }
   }
@@ -69,6 +74,9 @@ query Post ($id: ID!) {
     description
     content
     cover_image (width: 860, blur: 10)
+  }
+  metadata {
+    siteUrl
   }
 }
 </page-query>

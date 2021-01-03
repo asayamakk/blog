@@ -8,14 +8,13 @@ module.exports = {
   siteName: 'Asayamakk::Blog',
   siteDescription: 'Rubyとかバックエンドの話をします',
   siteUrl: 'https://asayamakk.com',
+  metadata: {
+    siteCover: 'https://asayamakk.com/public/images/cover.png',
+  },
 
   templates: {
     Post: '/posts/:path',
     Tag: '/tags/:id'
-  },
-
-  meta: {
-
   },
 
   plugins: [

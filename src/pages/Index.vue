@@ -31,6 +31,10 @@ query {
       }
     }
   }
+  metadata {
+    siteDescription
+    siteCover
+  }
 }
 </page-query>
 
@@ -43,8 +47,16 @@ export default {
     Author,
     PostCard
   },
-  metaInfo: {
-    title: 'Asayamakk::Blog'
+  metaInfo() {
+    return {
+      title: 'Asayamakk::Blog',
+      meta: [
+        {name: "og:type", content: 'website'},
+        {name: "og:description", content: this.$page.metadata.siteDescription},
+        {name: "og:image", content: this.$page.metadata.siteCover},
+      ],
+      link: []
+    }
   }
 }
 </script>

@@ -2,9 +2,10 @@
   "name": "blog",
   "private": true,
   "scripts": {
-    "build": "gridsome build",
-    "develop": "gridsome develop",
-    "explore": "gridsome explore"
+    "build": "./node_modules/.bin/gridsome build",
+    "develop": "./node_modules/.bin/gridsome develop",
+    "explore": "./node_modules/.bin/gridsome explore",
+    "deploy": "rm -rf ./dist && npm run build && ./node_modules/.bin/firebase deploy --token=$FIREBASE_TOKEN"
   },
   "dependencies": {
     "@gridsome/plugin-google-analytics": "^0.1.0",

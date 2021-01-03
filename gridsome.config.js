@@ -14,6 +14,10 @@ module.exports = {
     Tag: '/tags/:id'
   },
 
+  meta: {
+
+  },
+
   plugins: [
     {
       // Create posts from markdown files

@@ -4,12 +4,100 @@ path: how-to-auto-reload-ruby-grpc-server
 date: 2021-01-01
 published: true
 tags: ['Ruby', 'gRPC']
-canonical_url: https://example.com
 description: "RubyでgRPCサーバのAuto Reloadをする。Zeitwerkを使って定数読み込みを行い、ファイルの変更があった場合に自動でコードの再読込(Auto Reload)をさせる方法。"
 ---
 
 ## 環境
 
+使用しているGemとバージョン
+
+- grpc (1.31.1)
+- zeitwerk (2.4.0)
+- filewatcher (1.1.1)
+
+最後のfilewatcherはファイルの変更を検知できるGemなら代替できます。
+代表的なものとしてはRailsでも使用されているlistenなどがありますね。
+
+<div class="iframely-embed"><div class="iframely-responsive" style="height: 140px; padding-bottom: 0;"><a href="https://github.com/guard/listen" data-iframely-url="//cdn.iframe.ly/E3PHDHk"></a></div></div><script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+
+
+
+ 
+
+## 実装方法
+
+`puts foo`
+
+```ruby
+class ApplicationServer
+  include Singleton
+
+  def self.prepare_server
+    server = GRPC::RpcServer.new
+    server_location = "0.0.0.0:#{Env.grpc_port}"
+    server.add_http2_port(server_location, :this_port_is_insecure)
+    Env.logger.info "server starting: #{server_location}"
+    server.handle(BeersServer)
+    server.handle(UsersServer)
+    server.handle(PinsServer)
+
+    server
+  end
+
+  def serve
+    @grpc_servers ||= []
+    @threads ||= []
+    r, w = IO.pipe
+    @threads << Thread.new do
+      if (msg = r.gets)
+        Env.logger.debug "received! msg: #{msg}"
+        @grpc_servers.each { |s| s.stop }
+      end
+    end
+    Signal.trap(:INT) do
+      w.puts "trapped"
+    end
+
+    start_on_background
+    @threads.each(&:join)
+  end
+
+  def restart
+    unless @grpc_servers.empty?
+      @grpc_servers.each { |s| s.stop }
+      @grpc_servers = []
+      unless port_free?("0.0.0.0", Env.grpc_port)
+        Env.logger.debug "waiting..."
+        sleep 1
+      end
+      start_on_background
+    end
+  end
+
+  private
+
+  def start_on_background
+    server = self.class.prepare_server
+    @grpc_servers << server
+    @threads << Thread.new do
+      server.run
+    end
+    Env.logger.info "server started"
+  end
+
+  def port_free?(ip, port)
+    s = Socket.tcp(ip, port, connect_timeout: 5)
+    s.close
+  rescue Errno::ECONNREFUSED => e
+    Env.logger.debug "#{e.class}: #{e.message}"
+    return true
+  rescue => e
+    Env.logger.debug "#{e.class}: #{e.message}"
+    return false
+  end
+
+end
+```
 
 Markdown is intended to be as easy-to-read and easy-to-write as is feasible.Readability, however, is emphasized above all else. A Markdown-formatted
 document should be publishable as-is, as plain text, without looking

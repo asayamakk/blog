@@ -21,6 +21,7 @@ export default function (Vue, {router, head, isClient}) {
       router,
     )
   }
+
   head.meta.push(
     {key: "og:site_name", property: "og:site_name", content: config.siteName},
   )
